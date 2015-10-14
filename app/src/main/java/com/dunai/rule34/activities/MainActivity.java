@@ -13,6 +13,7 @@ import android.widget.*;
 import com.dunai.rule34.R;
 import com.dunai.rule34.exceptions.RESTException;
 import com.dunai.rule34.helpers.FetchTask;
+import com.dunai.rule34.helpers.InstallTracker;
 import com.dunai.rule34.interfaces.OnFetchReceiver;
 import com.dunai.rule34.models.Query;
 import com.dunai.rule34.models.Remote;
@@ -64,6 +65,8 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+
+        new InstallTracker(this).execute();
 
         this.gridView = (EndlessGridView) this.findViewById(R.id.gridView);
         this.posts = new SearchResults();
