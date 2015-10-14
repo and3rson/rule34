@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:elevation="4sp">
+    <RelativeLayout android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+        <com.dunai.rule34.views.SquareImageView
+                android:layout_width="fill_parent"
+                android:layout_height="200dp"
+                android:id="@+id/postPreview" android:scaleType="centerCrop" android:src="@drawable/empty"/>
+        <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Post title"
+                android:id="@+id/postTitle" android:layout_alignBottom="@+id/postPreview" android:padding="8dp"
+                android:background="@color/shade" android:textColor="@color/white"
+                />
+        <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:layout_alignTop="@+id/postPreview"
+                android:layout_alignLeft="@+id/postPreview" android:layout_alignBottom="@+id/postPreview"
+                android:layout_alignRight="@+id/postPreview" android:id="@+id/postOverlay" android:clickable="true"
+                >
+        </FrameLayout>
+    </RelativeLayout>
+</FrameLayout>

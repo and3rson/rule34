@@ -1,0 +1,35 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:context=".MainActivity">
+
+    <com.dunai.rule34.views.EndlessGridView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/gridView" android:paddingTop="56dp"
+            android:clipToPadding="false" android:numColumns="2" android:paddingLeft="8dp" android:paddingRight="8dp"
+            android:paddingBottom="8dp" android:verticalSpacing="8dp" android:horizontalSpacing="8dp"/>
+    <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="New Text"
+            android:id="@+id/footerText" android:padding="16dp" android:gravity="center_vertical|center_horizontal"
+            android:textStyle="bold" android:textSize="18sp"
+            android:background="@color/shade" android:textColor="@color/white" android:visibility="gone"
+            android:layout_alignParentBottom="false" android:layout_alignBottom="@+id/gridView"/>
+    <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" android:background="@drawable/shade">
+        <EditText
+                android:elevation="4sp"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="Search for pictures"
+                android:id="@+id/searchQuery" android:layout_margin="8dp" android:layout_alignParentLeft="true"
+                android:layout_marginLeft="16dp" android:layout_alignParentTop="true" android:layout_marginTop="16dp"
+                android:imeOptions="actionSearch" android:singleLine="true" android:background="@color/white"
+                android:padding="8dp"/>
+    </RelativeLayout>
+
+</RelativeLayout>
