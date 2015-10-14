@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -57,6 +58,7 @@ public class TopicActivity extends ActionBarActivity {
         setContentView(R.layout.topic);
 
         this.id = this.getIntent().getLongExtra("id", 0);
+        this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         this.getSupportActionBar().setTitle(this.getIntent().getStringExtra("title"));
 
         this.refresher = (SwipeRefreshLayout) this.findViewById(R.id.refresher);
@@ -125,5 +127,15 @@ public class TopicActivity extends ActionBarActivity {
                 Log.e(TAG, e.getMessage(), e);
             }
         }, "topic").setQuery(new Query().put("page", "forum").put("s", "view").put("id", this.id).put("pid", this.currentPage * 15)).execute(this.newTopicReplies);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }

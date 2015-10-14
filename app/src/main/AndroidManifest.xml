@@ -26,5 +26,7 @@
         </activity>
         <activity android:name=".activities.TopicActivity" android:label="View topic" >
         </activity>
+        <activity android:name=".activities.LoginActivity" android:label="My account" >
+        </activity>
     </application>
 </manifest>
