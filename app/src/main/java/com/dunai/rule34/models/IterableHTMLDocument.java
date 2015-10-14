@@ -3,11 +3,8 @@ package com.dunai.rule34.models;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import com.dunai.rule34.exceptions.RESTException;
-import com.dunai.rule34.models.Document;
-import com.dunai.rule34.models.Model;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.lang.reflect.Constructor;
 import java.util.*;
@@ -15,28 +12,28 @@ import java.util.*;
 /**
  * Created by anderson on 13.10.15.
  */
-public class IterableDocument<T extends Model> extends Document<T> implements List<T> {
+public class IterableHTMLDocument<T extends Model> extends Document<T> implements List<T> {
     private static final String TAG = "rule34/IterableDocument";
 
     ArrayList<T> models = new ArrayList<>();
+    private String selector;
 
-    public IterableDocument(Class<T> reference) {
-        super(reference);
+    public IterableHTMLDocument(Class<T> reference, String selector) {
+        super(reference, TYPE.HTML);
+
+        this.selector = selector;
     }
 
     @Override
     public void load(Query query) throws RESTException {
         super.load(query);
 
-        NodeList nodes = this.root.getElementsByTagName("post");
-        for (int i = 0; i < nodes.getLength(); i++) {
+        Elements elements = this.getHTMLRoot().select(this.selector);
+        for (Element element : elements) {
             T model;
-            Node node = nodes.item(i);
-
             try {
-                Constructor<?> constructor = this.reference.getConstructor(Node.class);
-                model = (T) constructor.newInstance(node);
-                Log.i(TAG, "Created model");
+                Constructor<?> constructor = this.reference.getConstructor(Element.class);
+                model = (T) constructor.newInstance(element);
             } catch (Exception e) {
                 Log.e(TAG, "Failed to create model!", e);
                 continue;

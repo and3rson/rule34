@@ -12,6 +12,7 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
+import org.jsoup.Jsoup;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -29,14 +30,21 @@ import java.util.HashMap;
  */
 public abstract class Remote {
     private static final String TAG = "rule34/Remote";
-    private static final String API_ROOT = "http://rule34.xxx/index.php?page=dapi&q=index&";
+    private static final String API_ROOT = "http://rule34.xxx/index.php?";
 
     private HashMap<String, String> args = new HashMap<>();
+    private TYPE type = TYPE.XML;
 
-    public Remote() {
+    enum TYPE {
+        XML,
+        HTML
     }
 
-    public Element _get(Query query) throws RESTException {
+    public Remote(TYPE type) {
+        this.type = type;
+    }
+
+    public Object _get(Query query) throws RESTException {
 //        String query = "";
 //        for(HashMap.Entry<String, String> entry : this.args.entrySet()) {
 //            query += entry.getKey() + "=" + entry.getValue() + "&";
@@ -69,20 +77,25 @@ public abstract class Remote {
             throw new RESTException(e.getMessage());
         }
 
-        Log.i("result", result);
+        switch (type) {
+            case XML:
+                DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+                Document doc;
 
-        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-        Document doc;
+                try {
+                    DocumentBuilder db = dbFactory.newDocumentBuilder();
+                    InputStream is = new ByteArrayInputStream(result.getBytes("UTF-8"));
+                    doc = db.parse(is);
+                } catch (Exception e) {
+                    throw new RESTException(e.getMessage());
+                }
 
-        try {
-            DocumentBuilder db = dbFactory.newDocumentBuilder();
-            InputStream is = new ByteArrayInputStream(result.getBytes("UTF-8"));
-            doc = db.parse(is);
-        } catch (Exception e) {
-            throw new RESTException(e.getMessage());
+                return doc.getDocumentElement();
+            case HTML:
+                return Jsoup.parse(result);
         }
 
-        return doc.getDocumentElement();
+        return null;
     }
 
     public abstract void load(Query query) throws RESTException;

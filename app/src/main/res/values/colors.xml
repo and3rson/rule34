@@ -3,4 +3,6 @@
     <color name="shade">#99000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="dark">#FF222222</color>
+
+    <color name="bg">#FFAAE5A3</color>
 </resources>

@@ -24,5 +24,7 @@
         </activity>
         <activity android:name=".activities.ImageActivity" android:label="View image" >
         </activity>
+        <activity android:name=".activities.TopicActivity" android:label="View topic" >
+        </activity>
     </application>
 </manifest>

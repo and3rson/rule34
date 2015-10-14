@@ -1,24 +1,29 @@
 package com.dunai.rule34.activities;
 
 import android.content.Context;
-import android.inputmethodservice.InputMethodService;
+import android.os.PersistableBundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.*;
 import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethod;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import com.dunai.rule34.R;
 import com.dunai.rule34.exceptions.RESTException;
+import com.dunai.rule34.fragments.ForumFragment;
+import com.dunai.rule34.fragments.PostsFragment;
 import com.dunai.rule34.helpers.FetchTask;
 import com.dunai.rule34.helpers.InstallTracker;
+import com.dunai.rule34.interfaces.NamedFragment;
 import com.dunai.rule34.interfaces.OnFetchReceiver;
 import com.dunai.rule34.models.Query;
 import com.dunai.rule34.models.Remote;
-import com.dunai.rule34.models.impl.Post;
-import com.dunai.rule34.models.impl.SearchResults;
+import com.dunai.rule34.models.impl.*;
 import com.dunai.rule34.views.EndlessGridView;
 import com.dunai.rule34.views.PostItemView;
 
@@ -28,165 +33,106 @@ import java.util.List;
 public class MainActivity extends ActionBarActivity {
     private static final String TAG = "rule34/MainActivity";
 
-    private EndlessGridView gridView;
-    private ListingAdapter listingAdapter;
-    private EditText searchQuery;
+    ViewPager viewPager;
+    private MainFragmentPagerAdapter mainFragmentPagerAdapter;
+    private LinearLayout viewPagerNav;
+    private LinearLayout viewPagerAccent;
 
-    private SearchResults posts;
-    private SearchResults newPosts;
-    private long currentPage = 0;
+    class MainFragmentPagerAdapter extends FragmentPagerAdapter {
+        private boolean initial = true;
 
-    private String lastQuery = null;
-
-    private TextView footerText;
-
-    private boolean noMoreResults = false;
-
-    enum State {
-        IDLE,
-        LOADING_MORE,
-        NOTHING_FOUND
-    }
-
-    private class ListingAdapter extends ArrayAdapter<Post> {
-        public ListingAdapter(Context context, int resource, List<Post> objects) {
-            super(context, resource, objects);
+        public MainFragmentPagerAdapter(FragmentManager fm) {
+            super(fm);
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            Post model = this.getItem(position);
-            Log.i(TAG, "Taking [" + String.valueOf(position) + "] / " + String.valueOf(model.id));
-            return PostItemView.createView(this.getContext(), model, convertView);
+        public Fragment getItem(int position) {
+            switch (position) {
+                case 0:
+                    return new PostsFragment();
+                case 1:
+                    return new ForumFragment();
+            }
+
+            return null;
+        }
+
+        @Override
+        public int getCount() {
+            return 2;
+        }
+
+        @Override
+        public void setPrimaryItem(ViewGroup container, int position, Object object) {
+            super.setPrimaryItem(container, position, object);
+
+            if (initial) {
+                if (viewPager.getWidth() > 0) {
+                    updateAccent(position, 0);
+                    initial = false;
+                }
+            }
         }
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.main);
 
-        new InstallTracker(this).execute();
+        this.viewPager = (ViewPager) this.findViewById(R.id.viewPager);
+        this.mainFragmentPagerAdapter = new MainFragmentPagerAdapter(this.getSupportFragmentManager());
+        this.viewPager.setAdapter(this.mainFragmentPagerAdapter);
 
-        this.gridView = (EndlessGridView) this.findViewById(R.id.gridView);
-        this.posts = new SearchResults();
-        this.newPosts = new SearchResults();
-        this.listingAdapter = new ListingAdapter(this, R.layout.post_item, this.posts);
-        this.gridView.setAdapter(this.listingAdapter);
-
-        this.footerText = (TextView) this.findViewById(R.id.footerText);
-//        ((RelativeLayout) this.footerText.getParent()).removeView(this.footerText);
-
-        this.gridView.setOnLoadMoreListener(new EndlessGridView.OnLoadMoreListener() {
+        this.viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
-            public void loadMore(EndlessGridView view) {
-                if (noMoreResults) {
-                    gridView.setProgress(false);
-                    return;
-                }
+            public void onPageScrolled(int i, float v, int i1) {
+                updateAccent(i, v);
+            }
 
-                currentPage++;
-                search(lastQuery);
+            @Override
+            public void onPageSelected(int i) {
+                getSupportActionBar().setTitle(((NamedFragment) mainFragmentPagerAdapter.getItem(i)).getName());
+            }
 
-                setState(State.LOADING_MORE);
+            @Override
+            public void onPageScrollStateChanged(int i) {
             }
         });
 
-        this.searchQuery = (EditText) this.findViewById(R.id.searchQuery);
-        this.searchQuery.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                    String query = searchQuery.getText().toString().trim();
-                    if (query.length() > 0) {
-                        posts.clear();
-                        listingAdapter.notifyDataSetChanged();
-                        currentPage = 0;
-                        search(query);
+        this.viewPagerNav = (LinearLayout) this.findViewById(R.id.viewPagerNav);
 
-                        View currentFocus = MainActivity.this.getCurrentFocus();
-                        if (currentFocus != null) {
-                            InputMethodManager inputManager = (InputMethodManager) MainActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE);
-                            inputManager.hideSoftInputFromWindow(currentFocus.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-                        }
-                    }
-                    return true;
+        this.viewPagerAccent = (LinearLayout) this.findViewById(R.id.viewPagerAccent);
+
+        for (int i = 0; i < this.mainFragmentPagerAdapter.getCount(); i++) {
+            final int finalI = i;
+            this.viewPagerNav.getChildAt(i).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    viewPager.setCurrentItem(finalI, true);
                 }
-                return false;
-            }
-        });
-
-        String tag = getIntent().getStringExtra("tag");
-        if (tag != null) {
-            this.searchQuery.setText(tag);
-            this.searchQuery.onEditorAction(EditorInfo.IME_ACTION_SEARCH);
-        }
-    }
-
-    private void search(String query) {
-        this.newPosts.clear();
-        new FetchTask(new OnFetchReceiver() {
-            @Override
-            public void onFetchRemote(Remote object, String tag) {
-                posts.addAll(newPosts);
-                listingAdapter.notifyDataSetChanged();
-                gridView.setProgress(false);
-
-                noMoreResults = newPosts.size() == 0;
-
-                if (posts.size() == 0) {
-                    setState(State.NOTHING_FOUND);
-                } else {
-                    setState(State.IDLE);
-                }
-            }
-
-            @Override
-            public void onFetchRemoteError(RESTException e, String tag) {
-                setState(State.IDLE);
-                Toast.makeText(MainActivity.this, "Network error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-            }
-        }, "get_posts").setQuery(new Query().put("s", "post").put("tags", query).put("limit", 20).put("pid", this.currentPage)).run(newPosts);
-
-        this.lastQuery = query;
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+            });
         }
 
-        return super.onOptionsItemSelected(item);
+        this.updateAccent(0, 0);
     }
 
-    public void setState(State state) {
-        switch (state) {
-            case IDLE:
-                this.footerText.setVisibility(View.GONE);
+    private void updateAccent(int i, float v) {
+        RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) this.viewPagerAccent.getLayoutParams();
+        switch (this.getWindowManager().getDefaultDisplay().getRotation()) {
+            case Surface.ROTATION_0:
+            case Surface.ROTATION_180:
+                lp.height = 4;
+                lp.width = this.viewPagerNav.getWidth() / this.mainFragmentPagerAdapter.getCount();
+                lp.leftMargin = (int) (((float) lp.width) * (i + v));
                 break;
-            case LOADING_MORE:
-                this.footerText.setVisibility(View.VISIBLE);
-                this.footerText.setText("Loading more...");
-                break;
-            case NOTHING_FOUND:
-                this.footerText.setVisibility(View.VISIBLE);
-                this.footerText.setText("Nothing found.");
-                break;
+            case Surface.ROTATION_90:
+            case Surface.ROTATION_270:
+                lp.width = 4;
+                lp.height = this.viewPagerNav.getHeight() / this.mainFragmentPagerAdapter.getCount();
+                lp.topMargin = (int) (((float) lp.height) * (i + v));
         }
+        this.viewPagerAccent.setLayoutParams(lp);
     }
 }

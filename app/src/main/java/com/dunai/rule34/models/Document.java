@@ -14,10 +14,10 @@ import java.util.ArrayList;
  */
 public class Document<T extends Model> extends Remote {
     protected Class<T> reference;
-    public Element root;
+    public Object root;
 
-    public Document(Class<T> reference) {
-        super();
+    public Document(Class<T> reference, TYPE type) {
+        super(type);
 
         this.reference = reference;
     }
@@ -25,5 +25,13 @@ public class Document<T extends Model> extends Remote {
     @Override
     public void load(Query query) throws RESTException {
         this.root = super._get(query);
+    }
+
+    public Element getXMLRoot() {
+        return (Element) this.root;
+    }
+
+    public org.jsoup.nodes.Element getHTMLRoot() {
+        return (org.jsoup.nodes.Element) this.root;
     }
 }

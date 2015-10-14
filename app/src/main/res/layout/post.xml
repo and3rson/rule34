@@ -2,70 +2,71 @@
 <FrameLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+        android:layout_height="fill_parent"
+        android:background="@color/bg">
     <!--<ScrollView-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:id="@+id/scrollView">-->
-        <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="fill_parent">
-            <ImageView
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:id="@+id/scrollView">-->
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent">
+        <ImageView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/imageView" android:layout_gravity="center_horizontal"
+                android:adjustViewBounds="false" android:layout_weight="1" android:scaleType="centerCrop"/>
+        <FrameLayout
+                android:layout_width="fill_parent"
+                android:layout_height="4dp" android:background="@drawable/border_bottom">
+        </FrameLayout>
+        <ScrollView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/scrollView" android:layout_weight="1">
+            <LinearLayout
+                    android:orientation="vertical"
                     android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/imageView" android:layout_gravity="center_horizontal"
-                    android:adjustViewBounds="false" android:layout_weight="1" android:scaleType="centerCrop"/>
-            <FrameLayout
-                    android:layout_width="fill_parent"
-                    android:layout_height="4dp" android:background="@drawable/border_bottom">
-            </FrameLayout>
-            <ScrollView
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/scrollView" android:layout_weight="1">
+                    android:layout_height="wrap_content" android:padding="8dp">
                 <LinearLayout
                         android:orientation="vertical"
                         android:layout_width="fill_parent"
-                        android:layout_height="wrap_content" android:padding="8dp">
-                    <LinearLayout
-                            android:orientation="vertical"
-                            android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp">
+                    <TextView
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp">
-                        <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Score"
-                                android:id="@+id/textView" android:textStyle="bold" android:textColor="@color/dark"/>
-                        <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="42"
-                                android:id="@+id/scoreTextView" android:layout_marginTop="8dp"/>
-                    </LinearLayout>
-                    <LinearLayout
-                            android:orientation="vertical"
-                            android:layout_width="fill_parent"
+                            android:text="Score"
+                            android:id="@+id/textView" android:textStyle="bold" android:textColor="@color/dark"/>
+                    <TextView
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp">
-                        <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Tags"
-                                android:id="@+id/textView2" android:textStyle="bold" android:textColor="@color/dark"/>
-                        <com.dunai.rule34.views.PackView
-                                android:layout_width="fill_parent"
-                                android:layout_height="wrap_content"
-                                android:id="@+id/tagsPackView" android:layout_marginTop="8dp"/>
-                    </LinearLayout>
-                    <!--<TextView-->
-                            <!--android:layout_width="wrap_content"-->
-                            <!--android:layout_height="wrap_content"-->
-                            <!--android:text="Some_tag_1, some_tag_2, some_tag_3"-->
-                            <!--android:id="@+id/tagsTextView" android:layout_marginTop="8dp"/>-->
+                            android:text="42"
+                            android:id="@+id/scoreTextView" android:layout_marginTop="8dp"/>
                 </LinearLayout>
-            </ScrollView>
-        </LinearLayout>
+                <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp">
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Tags"
+                            android:id="@+id/textView2" android:textStyle="bold" android:textColor="@color/dark"/>
+                    <com.dunai.rule34.views.PackView
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/tagsPackView" android:layout_marginTop="8dp"/>
+                </LinearLayout>
+                <!--<TextView-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="Some_tag_1, some_tag_2, some_tag_3"-->
+                <!--android:id="@+id/tagsTextView" android:layout_marginTop="8dp"/>-->
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
     <!--</ScrollView>-->
 </FrameLayout>
